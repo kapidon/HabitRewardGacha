@@ -1,6 +1,8 @@
 # Environment variables
 .env
-
+database.db
+conflu.txt
+rv.md
 # Python
 __pycache__/
 *.py[cod]

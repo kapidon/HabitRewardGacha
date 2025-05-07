@@ -3,6 +3,9 @@ from .config import get_settings, Settings
 import boto3
 from botocore.client import Config
 # RV: botocoreって何？boto3のinstallで使える❔
+# 回答: botocoreはboto3の依存パッケージで、AWSの低レベルAPIを提供するライブラリです。
+# boto3をインストールすると自動的にインストールされます。
+# boto3はbotocoreをラップして、より使いやすい高レベルAPIを提供します。
 from urllib.parse import urljoin
 
 class StorageClient(Protocol):
@@ -140,6 +143,12 @@ class MinioClient:
             aws_secret_access_key=settings.minio_secret_key,  # MinIOのシークレットキー
             config=Config(signature_version='s3v4'),  # S3 v4署名を使用
             # RV: s3v4って何？詳しくわかりやすく教えて
+            # 回答: S3 v4（AWS Signature Version 4）は、AWSのリクエスト署名方式の最新バージョンです。
+            # 以下の特徴があります：
+            # 1. セキュリティ: より強力な暗号化と認証を提供
+            # 2. リージョン対応: リージョン固有の署名をサポート
+            # 3. 互換性: 最新のAWSサービスとの互換性を確保
+            # MinIOはS3互換のAPIを提供するため、この署名方式を使用する必要があります。
         )
 
     def get_url(self, key: str) -> str:
