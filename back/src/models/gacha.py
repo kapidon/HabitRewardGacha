@@ -2,8 +2,7 @@ from enum import Enum
 from sqlmodel import Field, SQLModel, Relationship
 from typing import List, Optional
 
-# RV: 各クラスにDocstringをつけてください
-# 回答: はい、Docstringを追加します。
+
 class RarityEnum(str, Enum):
     """
     ガチャアイテムのレアリティを定義する列挙型。
