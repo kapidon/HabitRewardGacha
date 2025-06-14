@@ -4,7 +4,6 @@ from sqlmodel import Session, select
 from ..models.gacha import GachaType
 from ..models.item_data import ItemData
 from ..validators.item_validator import validate_csv_header, validate_item_data
-from .gacha_utils import parse_gacha_types
 
 def csv_to_json(csv_path: str, session: Session) -> List[ItemData]:
     """

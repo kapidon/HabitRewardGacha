@@ -69,7 +69,8 @@ class GachaItemService:
             GachaItem(
                 name=item_data.name,
                 rarity=item_data.rarity,
-                s3_key=self.upload_image(item_data.image_filename)
+                s3_key=self.upload_image(item_data.image_filename),
+                blog_url=item_data.blog_url
             ) for item_data in items_data
         ]
 

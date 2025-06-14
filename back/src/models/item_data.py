@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
 from ..models.gacha import GachaType, RarityEnum
 from ..utils.gacha_utils import parse_gacha_types
 
@@ -13,6 +13,7 @@ class ItemData:
     image_filename: str
     gacha_types: List[str]
     weight: int = 1
+    blog_url: Optional[str] = None
 
     @classmethod
     def from_csv_row(cls, row: Dict[str, str], gacha_type_dict: Dict[str, GachaType]) -> 'ItemData':
@@ -31,5 +32,6 @@ class ItemData:
             rarity=RarityEnum(row['rarity']),
             image_filename=row['image_filename'],
             gacha_types=parse_gacha_types(row['gacha_types']),
-            weight=int(row.get('weight', 1))
+            weight=int(row.get('weight', 1)),
+            blog_url=row.get('blog_url')
         ) 

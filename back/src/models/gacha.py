@@ -71,10 +71,12 @@ class GachaItem(SQLModel, table=True):
         name: アイテム名
         rarity: レアリティ
         s3_key: 画像のS3オブジェクトキー
+        blog_url: ブログ記事のURL
         gacha_type_links: 関連するガチャタイプとのリンク
     """
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     rarity: RarityEnum
     s3_key: str = Field(index=True)  # S3オブジェクトキー
+    blog_url: Optional[str] = None  # ブログ記事のURL
     gacha_type_links: List[GachaTypeItemLink] = Relationship(back_populates="gacha_item") 

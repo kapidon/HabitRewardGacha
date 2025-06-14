@@ -5,7 +5,6 @@
 
 from sqlmodel import Session, select
 import random
-from typing import Tuple, List
 from ..models.gacha import Rarity, GachaItem, GachaType, GachaTypeItemLink
 from ..storage import StorageClient
 
@@ -64,7 +63,7 @@ def pull_gacha(session: Session, gacha_type: str, storage_client: StorageClient)
         storage_client (StorageClient): ストレージクライアント
 
     Returns:
-        dict: 抽選結果（アイテム名、レアリティ、画像URL）
+        dict: 抽選結果（アイテム名、レアリティ、画像URL、ブログURL）
 
     Raises:
         ValueError: 指定された条件でアイテムが見つからない場合
@@ -81,5 +80,6 @@ def pull_gacha(session: Session, gacha_type: str, storage_client: StorageClient)
     return {
         "name": choiced_item.name,
         "rarity": choiced_rarity,
-        "image_url": image_url
+        "image_url": image_url,
+        "blog_url": choiced_item.blog_url
     } 
