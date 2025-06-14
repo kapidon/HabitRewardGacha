@@ -8,6 +8,8 @@ import handImage from '../../assets/hand.png'
 type Result = {
     name: string
     rarity: string
+    image_url: string
+    blog_url: string | null
 }
 
 type GachaType = 'normal' | 'rare' | 'super_rare'
@@ -41,7 +43,9 @@ const GachaButton = (): JSX.Element => {
                     pathname: 'gacha/result',
                     params: {
                         'name': encodeURIComponent(response.name),
-                        'rarity': encodeURIComponent(response.rarity)
+                        'rarity': encodeURIComponent(response.rarity),
+                        'image_url': encodeURIComponent(response.image_url),
+                        'blog_url': response.blog_url ? encodeURIComponent(response.blog_url) : ''
                     }
                 });
             });

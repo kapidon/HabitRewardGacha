@@ -1,15 +1,19 @@
 import React, { useRef } from 'react'
-import { Text, View, StyleSheet, Animated, TouchableWithoutFeedback, Image } from 'react-native'
+import { Text, View, StyleSheet, Animated, TouchableWithoutFeedback, Image, TouchableOpacity, Linking } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
 import SSRImage from '../../../assets/SSR.png'
 import SRImage from '../../../assets/SR.png'
 import RImage from '../../../assets/R.png'
 import NRImage from '../../../assets/NR.png'
 import NImage from '../../../assets/N.png'
-import DummyImage from '../../../assets/dummy.png'
 
 const Result = (): JSX.Element => {
-    const { name, rarity } = useLocalSearchParams<{name: string, rarity: string}>()
+    const { name, rarity, image_url, blog_url } = useLocalSearchParams<{
+        name: string,
+        rarity: string,
+        image_url: string,
+        blog_url: string
+    }>()
     const shakeAnimation = useRef(new Animated.Value(0)).current
     const imageOpacity = useRef(new Animated.Value(1)).current
     const textOpacity = useRef(new Animated.Value(0)).current
@@ -89,6 +93,12 @@ const Result = (): JSX.Element => {
                 return NImage
         }
     }
+
+    const handleBlogPress = async () => {
+        if (blog_url) {
+            await Linking.openURL(decodeURIComponent(blog_url));
+        }
+    }
     
     return (
         <TouchableWithoutFeedback onPress={startShake}>
@@ -115,10 +125,18 @@ const Result = (): JSX.Element => {
                     </Text>
                     <Text style={styles.name}>{decodeURIComponent(name)}</Text>
                     <Image 
-                        source={DummyImage}
-                        style={styles.dummyImage}
+                        source={{ uri: decodeURIComponent(image_url) }}
+                        style={styles.itemImage}
                         resizeMode="contain"
                     />
+                    {blog_url && (
+                        <TouchableOpacity
+                            style={styles.blogButton}
+                            onPress={handleBlogPress}
+                        >
+                            <Text style={styles.blogButtonText}>ブログ記事を読む</Text>
+                        </TouchableOpacity>
+                    )}
                 </Animated.View>
             </View>
         </TouchableWithoutFeedback>
@@ -158,20 +176,6 @@ const styles = StyleSheet.create({
         height: 320,
         marginBottom: 20,
     },
-    rarityBox: {
-        marginBottom: 20,
-        padding: 15,
-        borderRadius: 20,
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 5,
-    },
     rarityText: {
         fontSize: 52,
         fontWeight: '900',
@@ -195,10 +199,30 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 5,
     },
-    dummyImage: {
+    itemImage: {
         width: 240,
         height: 240,
         borderRadius: 20,
         marginTop: 20,
+        marginBottom: 20,
+    },
+    blogButton: {
+        backgroundColor: '#467FD3',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 25,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    blogButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
     }
 });
