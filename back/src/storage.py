@@ -41,6 +41,22 @@ class StorageClient(Protocol):
         """
         ...
 
+    def get_default_image_url(self) -> str:
+        """
+        デフォルト画像のURLを取得します。
+
+        Returns:
+            str: デフォルト画像のURL
+
+        Example:
+            ```python
+            # デフォルト画像のURLを取得
+            url = storage_client.get_default_image_url()
+            print(url)  # 例: "https://example.cloudfront.net/images/default.jpg"
+            ```
+        """
+        ...
+
 class S3Client:
     """
     AWS S3ストレージサービスクライアント。
@@ -78,6 +94,7 @@ class S3Client:
         # AWSのデフォルト認証情報を使用（環境変数またはIAMロール）
         self.client = boto3.client('s3')
         self.cloudfront_domain = settings.aws_cloudfront_domain
+        self.default_image_key = settings.default_image_key
 
     def get_url(self, key: str) -> str:
         """
@@ -95,7 +112,12 @@ class S3Client:
             print(url)  # "https://example.cloudfront.net/images/banner.jpg"
             ```
         """
+        if not key:
+            return self.get_default_image_url()
         return f"https://{self.cloudfront_domain}/{key}"
+
+    def get_default_image_url(self) -> str:
+        return f"https://{self.cloudfront_domain}/{self.default_image_key}"
 
 class MinioClient:
     """
@@ -139,6 +161,7 @@ class MinioClient:
             aws_secret_access_key=settings.minio_secret_key,  # MinIOのシークレットキー
             config=Config(signature_version='s3v4'),  # S3 v4署名を使用
         )
+        self.default_image_key = settings.default_image_key
 
     def get_url(self, key: str) -> str:
         """
@@ -156,7 +179,12 @@ class MinioClient:
             print(url)  # "http://localhost:9000/gacha/images/background.jpg"
             ```
         """
+        if not key:
+            return self.get_default_image_url()
         return urljoin(self.settings.minio_endpoint, f"/{self.settings.minio_bucket}/{key}")
+
+    def get_default_image_url(self) -> str:
+        return urljoin(self.settings.minio_endpoint, f"/{self.settings.minio_bucket}/{self.default_image_key}")
 
 def get_storage_client(settings: Settings) -> StorageClient:
     """

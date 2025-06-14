@@ -20,6 +20,9 @@ class Settings(BaseSettings):
         minio_access_key (str): MinIOのアクセスキー
         minio_secret_key (str): MinIOのシークレットキー
         minio_bucket (str): MinIOのバケット名
+
+        # デフォルト画像設定
+        default_image_key (str): デフォルト画像のS3キー
     """
 
     # ストレージタイプ設定
@@ -34,6 +37,9 @@ class Settings(BaseSettings):
     minio_access_key: str = "minioadmin"
     minio_secret_key: str = "minioadmin"
     minio_bucket: str = "gacha"
+
+    # デフォルト画像設定
+    default_image_key: str = "images/default.png"
 
     # 設定の読み込み方法を指定
     model_config = SettingsConfigDict(
