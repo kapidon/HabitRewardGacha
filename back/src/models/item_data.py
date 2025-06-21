@@ -14,6 +14,8 @@ class ItemData:
     gacha_types: List[str]
     weight: int = 1
     blog_url: Optional[str] = None
+    blog_name: Optional[str] = None
+    description: Optional[str] = None
 
     @classmethod
     def from_csv_row(cls, row: Dict[str, str], gacha_type_dict: Dict[str, GachaType]) -> 'ItemData':
@@ -33,5 +35,7 @@ class ItemData:
             image_filename=row['image_filename'],
             gacha_types=parse_gacha_types(row['gacha_types']),
             weight=int(row.get('weight', 1)),
-            blog_url=row.get('blog_url')
+            blog_url=row.get('blog_url'),
+            blog_name=row.get('blog_name'),
+            description=row.get('description')
         ) 

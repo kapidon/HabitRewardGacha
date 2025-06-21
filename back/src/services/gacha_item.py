@@ -25,6 +25,25 @@ class GachaItemService:
         gacha_types = self.session.exec(select(GachaType)).all()
         return {gt.name: gt for gt in gacha_types}
 
+    def delete_all_items_and_links(self) -> None:
+        """
+        既存のアイテムとリンクをすべて削除します。
+
+        Raises:
+            Exception: 削除処理が失敗した場合
+        """
+        try:
+            # 外部キー制約があるため、リンクを先に削除
+            self.session.exec(select(GachaTypeItemLink)).delete()
+            # アイテムを削除
+            self.session.exec(select(GachaItem)).delete()
+            self.session.commit()
+            print("既存のアイテムとリンクを削除しました")
+        except Exception as e:
+            self.session.rollback()
+            print(f"エラー: 削除処理が失敗しました: {str(e)}")
+            raise
+
     def upload_image(self, image_filename: str) -> str:
         """
         画像をストレージにアップロードします。
@@ -70,7 +89,9 @@ class GachaItemService:
                 name=item_data.name,
                 rarity=item_data.rarity,
                 s3_key=self.upload_image(item_data.image_filename),
-                blog_url=item_data.blog_url
+                blog_url=item_data.blog_url,
+                blog_name=item_data.blog_name,
+                description=item_data.description
             ) for item_data in items_data
         ]
 
@@ -103,4 +124,26 @@ class GachaItemService:
         except Exception as e:
             self.session.rollback()
             print(f"エラー: トランザクションが失敗しました: {str(e)}")
+            raise
+
+    def replace_all_items(self, items_data: List[ItemData]) -> None:
+        """
+        既存のアイテムとリンクを削除してから、新しいアイテムを一括登録します（完全洗い替え）。
+
+        Args:
+            items_data (List[ItemData]): 登録するアイテム情報のリスト
+
+        Raises:
+            Exception: 処理が失敗した場合
+        """
+        try:
+            # 既存のアイテムとリンクを削除
+            self.delete_all_items_and_links()
+            
+            # 新しいアイテムを登録
+            self.register_items(items_data)
+            
+            print("完全洗い替えが完了しました")
+        except Exception as e:
+            print(f"エラー: 完全洗い替えが失敗しました: {str(e)}")
             raise 

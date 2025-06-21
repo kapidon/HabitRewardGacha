@@ -81,5 +81,7 @@ def pull_gacha(session: Session, gacha_type: str, storage_client: StorageClient)
         "name": choiced_item.name,
         "rarity": choiced_rarity,
         "image_url": image_url,
-        "blog_url": choiced_item.blog_url
+        "blog_url": choiced_item.blog_url,
+        "blog_name": choiced_item.blog_name,
+        "description": choiced_item.description
     } 

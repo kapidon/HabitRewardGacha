@@ -10,6 +10,8 @@ type Result = {
     rarity: string
     image_url: string
     blog_url: string | null
+    blog_name: string | null
+    description: string | null
 }
 
 type GachaType = 'normal' | 'rare' | 'super_rare'
@@ -45,7 +47,9 @@ const GachaButton = (): JSX.Element => {
                         'name': encodeURIComponent(response.name),
                         'rarity': encodeURIComponent(response.rarity),
                         'image_url': encodeURIComponent(response.image_url),
-                        'blog_url': response.blog_url ? encodeURIComponent(response.blog_url) : ''
+                        'blog_url': response.blog_url ? encodeURIComponent(response.blog_url) : '',
+                        'blog_name': response.blog_name ? encodeURIComponent(response.blog_name) : '',
+                        'description': response.description ? encodeURIComponent(response.description) : ''
                     }
                 });
             });
