@@ -8,11 +8,13 @@ import NRImage from '../../../assets/NR.png'
 import NImage from '../../../assets/N.png'
 
 const Result = (): JSX.Element => {
-    const { name, rarity, image_url, blog_url } = useLocalSearchParams<{
+    const { name, rarity, image_url, blog_url, blog_name, description } = useLocalSearchParams<{
         name: string,
         rarity: string,
         image_url: string,
-        blog_url: string
+        blog_url: string,
+        blog_name: string,
+        description: string
     }>()
     const shakeAnimation = useRef(new Animated.Value(0)).current
     const imageOpacity = useRef(new Animated.Value(1)).current
@@ -124,17 +126,20 @@ const Result = (): JSX.Element => {
                         {decodeURIComponent(rarity)}
                     </Text>
                     <Text style={styles.name}>{decodeURIComponent(name)}</Text>
+                    {description && (
+                        <Text style={styles.description}>{decodeURIComponent(description)}</Text>
+                    )}
                     <Image 
                         source={{ uri: decodeURIComponent(image_url) }}
                         style={styles.itemImage}
                         resizeMode="contain"
                     />
-                    {blog_url && (
+                    {blog_url && blog_name && (
                         <TouchableOpacity
                             style={styles.blogButton}
                             onPress={handleBlogPress}
                         >
-                            <Text style={styles.blogButtonText}>ブログ記事を読む</Text>
+                            <Text style={styles.blogButtonText}>{decodeURIComponent(blog_name)}</Text>
                         </TouchableOpacity>
                     )}
                 </Animated.View>
@@ -171,6 +176,18 @@ const styles = StyleSheet.create({
         textShadowOffset: { width: 2, height: 2 },
         textShadowRadius: 3,
     },
+    description: {
+        fontSize: 18,
+        fontWeight: '600',
+        marginBottom: 20,
+        color: '#34495E',
+        textAlign: 'center',
+        lineHeight: 24,
+        paddingHorizontal: 10,
+        textShadowColor: 'rgba(0, 0, 0, 0.05)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
+    },
     rarityImage: {
         width: 320,
         height: 320,
@@ -198,6 +215,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 5,
+        maxWidth: '90%',
+        minWidth: 300,
     },
     itemImage: {
         width: 240,

@@ -72,6 +72,8 @@ class GachaItem(SQLModel, table=True):
         rarity: レアリティ
         s3_key: 画像のS3オブジェクトキー
         blog_url: ブログ記事のURL
+        blog_name: ブログ記事のタイトル
+        description: アイテムの説明
         gacha_type_links: 関連するガチャタイプとのリンク
     """
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -79,4 +81,6 @@ class GachaItem(SQLModel, table=True):
     rarity: RarityEnum
     s3_key: str = Field(index=True)  # S3オブジェクトキー
     blog_url: Optional[str] = None  # ブログ記事のURL
+    blog_name: Optional[str] = None  # ブログ記事のタイトル
+    description: Optional[str] = None  # アイテムの説明
     gacha_type_links: List[GachaTypeItemLink] = Relationship(back_populates="gacha_item") 
