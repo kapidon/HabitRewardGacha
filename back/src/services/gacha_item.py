@@ -1,6 +1,7 @@
 import os
 from typing import Dict, List
 from sqlmodel import Session, select
+from sqlalchemy import delete
 from ..models.gacha import GachaItem, GachaType, GachaTypeItemLink
 from ..models.item_data import ItemData
 from ..storage import StorageClient
@@ -34,9 +35,9 @@ class GachaItemService:
         """
         try:
             # 外部キー制約があるため、リンクを先に削除
-            self.session.exec(select(GachaTypeItemLink)).delete()
+            self.session.exec(delete(GachaTypeItemLink))
             # アイテムを削除
-            self.session.exec(select(GachaItem)).delete()
+            self.session.exec(delete(GachaItem))
             self.session.commit()
             print("既存のアイテムとリンクを削除しました")
         except Exception as e:

@@ -1,14 +1,12 @@
 """
 データベース接続とセッション管理のためのモジュール。
-SQLiteを使用したデータベース接続の設定と、セッション管理の機能を提供します。
-
-Note:
-    将来的にPostgreSQLに移行する予定です。
+PostgreSQLを使用したデータベース接続の設定と、セッション管理の機能を提供します。
 """
 
 from sqlmodel import create_engine, Session
 from sqlalchemy.engine import Engine
-import os
+from sqlalchemy import inspect
+from .config import get_settings
 
 def get_engine() -> Engine:
     """
@@ -17,13 +15,8 @@ def get_engine() -> Engine:
     Returns:
         Engine: SQLAlchemyエンジンインスタンス
     """
-    # データベースファイルのパスを取得
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(current_dir, "..", "database.db")
-    
-    # SQLiteのURL形式を修正（絶対パスを使用）
-    sqlite_url = f"sqlite:///{db_path}"
-    return create_engine(sqlite_url, connect_args={"check_same_thread": False})
+    settings = get_settings()
+    return create_engine(settings.database_url)
 
 def get_session() -> Session:
     """
@@ -37,11 +30,25 @@ def get_session() -> Session:
 def create_tables():
     """
     データベースのテーブルを作成します。
-    アプリケーション起動時に呼び出され、必要なテーブルが存在しない場合に作成します。
-    
-    Note:
-        将来的にPostgreSQLに移行する予定です。
+    テーブルが既に存在する場合は何もしません。
+    アプリケーション起動時に呼び出され、必要なテーブルが存在しない場合にのみ作成します。
     """
     from sqlmodel import SQLModel
     engine = get_engine()
-    SQLModel.metadata.create_all(engine)
+    
+    # テーブルが既に存在するかチェック
+    inspector = inspect(engine)
+    existing_tables = inspector.get_table_names()
+    
+    # 必要なテーブル名のリスト（SQLModelのメタデータから取得）
+    required_tables = SQLModel.metadata.tables.keys()
+    
+    # 必要なテーブルがすべて存在するかチェック
+    missing_tables = [table for table in required_tables if table not in existing_tables]
+    
+    if missing_tables:
+        # 不足しているテーブルのみ作成
+        SQLModel.metadata.create_all(engine)
+        return True  # テーブルを作成した
+    else:
+        return False  # テーブルは既に存在する

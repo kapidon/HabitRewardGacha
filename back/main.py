@@ -1,18 +1,71 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from src.routes import gacha
 from src.database import create_tables
+from src.config import get_settings
+from src.middleware.auth import auth_middleware
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    アプリケーションのライフサイクルを管理します。
+    本番環境（Render）とローカル開発環境の両方で動作します。
+    コールドスリープ後の起動にも対応します。
+    """
+    try:
+        # アプリケーション起動時の処理
+        print("アプリケーション起動中...")
+        
+        # テーブル作成（既存の場合は何もしない）
+        tables_created = create_tables()
+        if tables_created:
+            print("データベーステーブルを作成しました")
+        else:
+            print("データベーステーブルは既に存在します")
+            
+    except Exception as e:
+        print(f"起動時のエラー: {e}")
+        # エラーが発生してもアプリケーションは起動を続行
+        # データベース接続は初回リクエスト時に再試行される
+    
+    yield
+    
+    # アプリケーション終了時の処理（必要に応じて追加）
+    print("アプリケーション終了中...")
+
+app = FastAPI(
+    lifespan=lifespan,
+    title="RewardGacha API",
+    description="ガチャシステムのAPI",
+    version="1.0.0"
+)
+
+# CORS設定
+settings = get_settings()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
+
+# 認証ミドルウェアを追加
+app.middleware("http")(auth_middleware)
 
 # ルーターの登録
 app.include_router(gacha.router, prefix="/gacha", tags=["gacha"])
 
-@app.on_event("startup")
-async def startup_event():
-    # データベースの初期化
-    create_tables()
+@app.get("/health")
+async def health_check():
+    """
+    ヘルスチェックエンドポイント
+    コールドスリープ後の起動確認用
+    """
+    return {"status": "healthy", "message": "アプリケーションが正常に動作しています"}
 
 if __name__ == "__main__":
-    # 開発環境でのデバッグ用
+    # ローカル開発環境でのデバッグ用
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=9000)
