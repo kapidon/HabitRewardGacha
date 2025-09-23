@@ -37,10 +37,12 @@ def validate_item_data(row: Dict[str, str], gacha_type_dict: Dict[str, GachaType
     if missing_types:
         raise ValueError(f"存在しないガチャタイプが指定されています: {', '.join(missing_types)}")
 
-    # 重みの検証
-    try:
-        weight = int(row.get('weight', 1))
-        if weight < 1:
-            raise ValueError(f"重みは1以上である必要があります: {weight}")
-    except ValueError:
-        raise ValueError(f"無効な重みの値です: {row.get('weight')}") 
+    # 重みの検証（空欄や無効な値は後で1に設定されるため、ここではスキップ）
+    weight_str = row.get('weight', '')
+    if weight_str is not None and weight_str.strip() != '':
+        try:
+            weight = int(weight_str)
+            if weight < 1:
+                raise ValueError(f"重みは1以上である必要があります: {weight}")
+        except ValueError:
+            raise ValueError(f"無効な重みの値です: {weight_str}") 

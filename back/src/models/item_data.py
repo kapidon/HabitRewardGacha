@@ -17,6 +17,27 @@ class ItemData:
     blog_name: Optional[str] = None
     description: Optional[str] = None
 
+    @staticmethod
+    def parse_weight(weight_str: Optional[str]) -> int:
+        """
+        weightフィールドの文字列を整数に変換します。
+        空欄や無効な値の場合は1を返します。
+
+        Args:
+            weight_str (Optional[str]): 変換するweight文字列
+
+        Returns:
+            int: 変換されたweight値（1以上）
+        """
+        if weight_str is None or weight_str.strip() == '':
+            return 1
+        
+        try:
+            weight = int(weight_str)
+            return max(1, weight)  # 1未満の場合は1に設定
+        except ValueError:
+            return 1  # 数値に変換できない場合は1に設定
+
     @classmethod
     def from_csv_row(cls, row: Dict[str, str], gacha_type_dict: Dict[str, GachaType]) -> 'ItemData':
         """
@@ -34,7 +55,7 @@ class ItemData:
             rarity=RarityEnum(row['rarity']),
             image_filename=row['image_filename'],
             gacha_types=parse_gacha_types(row['gacha_types']),
-            weight=int(row.get('weight', 1)),
+            weight=cls.parse_weight(row.get('weight')),
             blog_url=row.get('blog_url'),
             blog_name=row.get('blog_name'),
             description=row.get('description')
