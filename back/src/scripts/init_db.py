@@ -1,4 +1,5 @@
 from sqlmodel import Session, SQLModel, create_engine, select
+from sqlalchemy import delete
 from ..models.gacha import Rarity, RarityEnum, GachaType, GachaTypeItemLink, GachaItem
 from ..config import get_settings
 
@@ -16,10 +17,11 @@ def init_db():
     with Session(engine) as session:
         try:
             # 既存のデータを削除（外部キー制約を考慮した順序）
-            session.exec(select(GachaTypeItemLink)).delete()
-            session.exec(select(GachaItem)).delete()
-            session.exec(select(GachaType)).delete()
-            session.exec(select(Rarity)).delete()
+            # 一気に削除
+            session.exec(delete(GachaTypeItemLink))
+            session.exec(delete(GachaItem))
+            session.exec(delete(GachaType))
+            session.exec(delete(Rarity))
 
             # レアリティの初期データ
             rarities = [
