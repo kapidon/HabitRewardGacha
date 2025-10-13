@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react'
 import { useRouter } from 'expo-router'
-import { Animated, PanResponder, View, StyleSheet, Image, TouchableOpacity, Text } from "react-native";
+import { Animated, PanResponder, View, StyleSheet, Image, Text } from "react-native";
 import axios from 'axios'
+import Constants from 'expo-constants'
 import jarImage from '../../assets/jar.png'
 import handImage from '../../assets/hand.png'
 
@@ -14,10 +15,27 @@ type Result = {
     description: string | null
 }
 
-type GachaType = 'normal' | 'rare' | 'super_rare'
+type GachaType = 'diet_food'
+
+// 環境変数からAPI設定を取得
+const API_BASE_URL = __DEV__ 
+    ? Constants.expoConfig?.extra?.apiBaseUrlDev 
+    : Constants.expoConfig?.extra?.apiBaseUrlProd
+const API_KEY = Constants.expoConfig?.extra?.apiKey
+
+// axiosインスタンスを作成
+const apiClient = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'X-API-Key': API_KEY,
+        'User-Agent': 'RewardGacha/1.0',
+        'Content-Type': 'application/json',
+    },
+    timeout: 10000, // 10秒のタイムアウト
+})
 
 const fetchGachaResult = async (gachaType: GachaType): Promise<Result> => {
-    const response = await axios.get<Result>(`http://10.0.2.2:8000/gacha/pull?gacha_type=${gachaType}`)
+    const response = await apiClient.get<Result>(`/gacha/pull?gacha_type=${gachaType}`)
     return response.data
 }
 
@@ -30,7 +48,7 @@ const GachaButton = (): JSX.Element => {
     
     const pan = useRef(new Animated.ValueXY()).current;
     const [isGachaProcessing, setIsGachaProcessing] = useState(false);
-    const [selectedGachaType, setSelectedGachaType] = useState<GachaType>('normal');
+    const [selectedGachaType] = useState<GachaType>('diet_food');
 
     const handleGachaPull = async () => {
         setIsGachaProcessing(true);
@@ -90,26 +108,8 @@ const GachaButton = (): JSX.Element => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.tabContainer}>
-                <TouchableOpacity 
-                    // 選択されていたら、選択済みのスタイルを指定
-                    style={[styles.tab, selectedGachaType === 'normal' && styles.selectedTab]}
-                    onPress={() => setSelectedGachaType('normal')}
-                >
-                    <Text style={styles.tabText}>通常ガチャ</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[styles.tab, selectedGachaType === 'rare' && styles.selectedTab]}
-                    onPress={() => setSelectedGachaType('rare')}
-                >
-                    <Text style={styles.tabText}>レアガチャ</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[styles.tab, selectedGachaType === 'super_rare' && styles.selectedTab]}
-                    onPress={() => setSelectedGachaType('super_rare')}
-                >
-                    <Text style={styles.tabText}>スーパーレアガチャ</Text>
-                </TouchableOpacity>
+            <View style={styles.textContainer}>
+                <Text style={styles.gachaTypeText}>ダイエット商品ガチャ</Text>
             </View>
             <View style={styles.gachaContainer}>
                 <Image
@@ -146,14 +146,13 @@ const styles = StyleSheet.create({
         paddingVertical: 0,
         position: 'relative',
     },
-    tabContainer: {
-        flexDirection: 'row',
+    textContainer: {
         marginBottom: 30,
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
         borderRadius: 25,
         padding: 10,
         width: '90%',
-        justifyContent: 'space-around',
+        justifyContent: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -165,41 +164,9 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: 'rgba(255, 255, 255, 0.9)',
     },
-    tab: {
-        padding: 15,
-        borderRadius: 20,
-        marginHorizontal: 2,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        minWidth: 110,
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(0, 0, 0, 0.1)',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    selectedTab: {
-        backgroundColor: 'rgba(255, 236, 179, 0.9)',
-        shadowColor: '#FFB74D',
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 6,
-        elevation: 6,
-        transform: [{ scale: 1.05 }],
-        borderWidth: 2,
-        borderColor: '#FFB74D',
-    },
-    tabText: {
-        fontSize: 16,
-        fontWeight: '800',
+    gachaTypeText: {
+        fontSize: 24,
+        fontWeight: 'bold',
         color: '#2C3E50',
         textShadowColor: 'rgba(0, 0, 0, 0.1)',
         textShadowOffset: { width: 1, height: 1 },
