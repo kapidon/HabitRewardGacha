@@ -6,6 +6,7 @@ import SRImage from '../../../assets/SR.png'
 import RImage from '../../../assets/R.png'
 import NRImage from '../../../assets/NR.png'
 import NImage from '../../../assets/N.png'
+import DefaultImage from '../../../assets/default.png'
 
 const Result = (): JSX.Element => {
     const { name, rarity, image_url, blog_url, blog_name, description } = useLocalSearchParams<{
@@ -125,22 +126,30 @@ const Result = (): JSX.Element => {
                     ]}>
                         {decodeURIComponent(rarity)}
                     </Text>
-                    <Text style={styles.name}>{decodeURIComponent(name)}</Text>
+                    <Text
+                        style={styles.name}
+                        adjustsFontSizeToFit
+                        numberOfLines={1}
+                    >
+                        {decodeURIComponent(name)}
+                    </Text>
                     {description && (
                         <Text style={styles.description}>{decodeURIComponent(description)}</Text>
                     )}
                     <Image 
-                        source={{ uri: decodeURIComponent(image_url) }}
+                        source={image_url ? { uri: decodeURIComponent(image_url) } : DefaultImage}
                         style={styles.itemImage}
                         resizeMode="contain"
                     />
-                    {blog_url && blog_name && (
+                    {blog_url && blog_name ? (
                         <TouchableOpacity
                             style={styles.blogButton}
                             onPress={handleBlogPress}
                         >
                             <Text style={styles.blogButtonText}>{decodeURIComponent(blog_name)}</Text>
                         </TouchableOpacity>
+                    ) : (
+                        <Text style={styles.blogPreparingText}>おすすめ記事準備中！</Text>
                     )}
                 </Animated.View>
             </View>
@@ -168,8 +177,10 @@ const styles = StyleSheet.create({
         textShadowRadius: 3,
     },
     name: {
+        width: '100%',
         fontSize: 36,
         fontWeight: '900',
+        textAlign: 'center',
         marginBottom: 20,
         color: '#2C3E50',
         textShadowColor: 'rgba(0, 0, 0, 0.1)',
@@ -243,5 +254,12 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    blogPreparingText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#34495E',
+        marginTop: 20,
+        marginBottom: 20,
     }
 });

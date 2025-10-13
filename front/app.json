@@ -26,7 +26,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router"
-    ]
+      "expo-router",
+      "expo-sqlite"
+    ],
+    "extra": {
+      "apiBaseUrlDev": "http://10.0.2.2:9000",
+      "apiBaseUrlProd": "https://your-render-domain.onrender.com",
+      "apiKey": "your-development-api-key-here"
+    }
   }
 }
