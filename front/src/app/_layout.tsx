@@ -5,9 +5,15 @@ import { initializeHabitTable } from '../database/habitTable'
 
 const Layout = (): JSX.Element => {
     useEffect(() => {
-        void initializeHabitTable().catch((error) => {
-            console.error('Failed to initialize habit table', error)
-        })
+        const setupDatabase = async (): Promise<void> => {
+            try {
+                await initializeHabitTable()
+            } catch (error) {
+                console.error('Failed to initialize habit table', error)
+            }
+        }
+
+        void setupDatabase()
     }, [])
 
     return (
