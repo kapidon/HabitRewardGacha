@@ -1,42 +1,32 @@
-import { openDatabase, type SQLiteDatabase } from 'expo-sqlite'
+import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite'
 
-let databaseInstance: SQLiteDatabase | null = null
+let databasePromise: Promise<SQLiteDatabase> | null = null
 
-const getDatabase = (): SQLiteDatabase => {
-    if (databaseInstance !== null) {
-        return databaseInstance
+const getDatabase = async (): Promise<SQLiteDatabase> => {
+    if (databasePromise == null) {
+        databasePromise = openDatabaseAsync('habits.db')
     }
 
-    databaseInstance = openDatabase('habits.db')
-    return databaseInstance
+    return databasePromise
 }
 
 export const initializeHabitTable = async (): Promise<void> => {
-    const db = getDatabase()
+    const db = await getDatabase()
 
-    await new Promise<void>((resolve, reject) => {
-        db.transaction(
-            (transaction) => {
-                transaction.executeSql(
-                    `CREATE TABLE IF NOT EXISTS habits (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name TEXT NOT NULL,
-                        created_at TEXT NOT NULL,
-                        is_achieved INTEGER NOT NULL DEFAULT 0,
-                        last_achieved_at TEXT,
-                        consecutive_days INTEGER NOT NULL DEFAULT 0
-                    );`,
-                    [],
-                    () => resolve(),
-                    (_transaction, error) => {
-                        reject(error)
-                        return false
-                    },
-                )
-            },
-            (error) => {
-                reject(error)
-            },
-        )
+    await db.execAsync('PRAGMA journal_mode = WAL;')
+
+    await db.withTransactionAsync(async () => {
+        await db.runAsync(`
+            CREATE TABLE IF NOT EXISTS habits (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                is_achieved INTEGER NOT NULL DEFAULT 0,
+                last_achieved_at TEXT,
+                consecutive_days INTEGER NOT NULL DEFAULT 0
+            )
+        `)
     })
 }
+
+export const getHabitDatabase = async (): Promise<SQLiteDatabase> => getDatabase()
