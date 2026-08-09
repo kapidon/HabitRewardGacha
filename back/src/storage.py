@@ -208,8 +208,8 @@ def get_storage_client(settings: Settings) -> StorageClient:
             aws_cloudfront_domain="example.cloudfront.net",
             # MinIO設定
             minio_endpoint="http://localhost:9000",
-            minio_access_key="minioadmin",
-            minio_secret_key="minioadmin",
+            minio_access_key="your-minio-access-key",
+            minio_secret_key="your-minio-secret-key",
             minio_bucket="gacha"
         )
         

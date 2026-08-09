@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     2. .envファイル（ローカル開発環境のみ）
 
     Attributes:
+        environment (Literal["development", "production"]): 実行環境
+            - "development": ローカル開発環境（/docsなどのAPIドキュメントを公開）
+            - "production": 本番環境（/docsなどのAPIドキュメントを非公開）
+
         storage_type (Literal["s3", "minio"]): 使用するストレージサービスの種類
             - "s3": 本番環境用のAWS S3
             - "minio": ローカル開発環境用のMinIO
@@ -21,8 +25,8 @@ class Settings(BaseSettings):
 
         # MinIO設定
         minio_endpoint (str): MinIOサーバーのエンドポイントURL
-        minio_access_key (str): MinIOのアクセスキー
-        minio_secret_key (str): MinIOのシークレットキー
+        minio_access_key (str): MinIOのアクセスキー（.envファイルまたは環境変数から設定）
+        minio_secret_key (str): MinIOのシークレットキー（.envファイルまたは環境変数から設定）
         minio_bucket (str): MinIOのバケット名
 
         # データベース設定
@@ -38,6 +42,9 @@ class Settings(BaseSettings):
         allowed_user_agents (List[str]): 許可するUser-Agentのリスト
     """
 
+    # 実行環境設定
+    environment: Literal["development", "production"] = "development"
+
     # ストレージタイプ設定
     storage_type: Literal["s3", "minio"] = "s3"
 
@@ -45,10 +52,10 @@ class Settings(BaseSettings):
     aws_s3_bucket: str
     aws_cloudfront_domain: str
 
-    # MinIO設定（デフォルト値はMinIOの標準設定）
+    # MinIO設定（アクセスキー・シークレットキーは環境変数から必須で設定）
     minio_endpoint: str = "http://localhost:9000"
-    minio_access_key: str = "minioadmin"
-    minio_secret_key: str = "minioadmin"
+    minio_access_key: str = ""
+    minio_secret_key: str = ""
     minio_bucket: str = "gacha"
 
     # データベース設定

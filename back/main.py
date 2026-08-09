@@ -34,19 +34,27 @@ async def lifespan(app: FastAPI):
     # アプリケーション終了時の処理（必要に応じて追加）
     print("アプリケーション終了中...")
 
+settings = get_settings()
+is_production = settings.environment == "production"
+
 app = FastAPI(
     lifespan=lifespan,
     title="RewardGacha API",
     description="ガチャシステムのAPI",
-    version="1.0.0"
+    version="1.0.0",
+    # 本番環境ではAPIドキュメントを非公開にする
+    docs_url=None if is_production else "/docs",
+    redoc_url=None if is_production else "/redoc",
+    openapi_url=None if is_production else "/openapi.json",
 )
 
 # CORS設定
-settings = get_settings()
+# React Nativeネイティブアプリからのアクセスが前提でCookieを使用しないため、
+# allow_credentials=Falseとする（allow_origins=["*"]との併用はブラウザ仕様上矛盾するため）
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
